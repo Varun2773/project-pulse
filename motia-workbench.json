@@ -1,0 +1,49 @@
+[
+  {
+    "id": "hello-world-flow",
+    "config": {
+      "src/hello/process-greeting.step.ts": {
+        "x": 409,
+        "y": 44
+      },
+      "src/hello/hello-api.step.ts": {
+        "x": 0,
+        "y": 0,
+        "sourceHandlePosition": "right"
+      }
+    }
+  },
+  {
+    "id": "ServiceHealthCheckWorkflow",
+    "config": {
+      "src/events/store-incident.step.ts": {
+        "x": 1152,
+        "y": 33
+      },
+      "src/events/notify.step.ts": {
+        "x": 1368,
+        "y": 173
+      },
+      "src/events/fetch-health.step.ts": {
+        "x": 312,
+        "y": 47
+      },
+      "src/events/analyze-health.step.ts": {
+        "x": 687,
+        "y": -11
+      },
+      "src/cron/monitor.step.ts": {
+        "x": -125,
+        "y": -7
+      },
+      "src/.motia/compiled/events/analyze-health.step.js": {
+        "x": 702,
+        "y": 246
+      },
+      "src/.motia/compiled/cron/monitor.step.js": {
+        "x": -77,
+        "y": 220
+      }
+    }
+  }
+]

@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Service {
+  id            String   @id @default(uuid())
+  base_url      String
+  health_path   String   @default("/health")
+  alert_email   String
+  check_interval Int      @default(5) // in minutes
+  last_status   String   @default("unknown") // healthy, degraded, unhealthy
+  last_checked_at DateTime?
+  last_alert_sent_at DateTime?
+  created_at    DateTime @default(now())
+  incidents     Incident[]
+}
+
+model Incident {
+  id          String   @id @default(uuid())
+  service     Service  @relation(fields: [service_id], references: [id])
+  service_id  String
+  status      String   // healthy, degraded, unhealthy
+  reason      String
+  error_code  String?
+  latency     Int?
+  timestamp   DateTime @default(now())
+}
