@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Layout } from './layout/Layout'
 import { Login } from './pages/Login'
+import { RegisterUser } from './pages/RegisterUser'
 import { Dashboard } from './pages/Dashboard'
 import { RegisterService } from './pages/RegisterService'
 
@@ -14,6 +15,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<RegisterUser />} />
 
         <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { CheckCircle, AlertTriangle, XCircle, Clock } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { CheckCircle, AlertTriangle, XCircle, Clock, Trash2 } from 'lucide-react'
 import { Card, Button } from '../components/ui'
 
 interface Service {
@@ -14,18 +14,55 @@ interface Service {
 export function Dashboard() {
     const [data, setData] = useState<{ services: Service[], incidents: any[] }>({ services: [], incidents: [] })
     const [loading, setLoading] = useState(true)
+    const navigate = useNavigate()
 
     const fetchData = async () => {
+        const token = localStorage.getItem('token')
+        if (!token) {
+            navigate('/login')
+            return
+        }
+
         try {
-            const res = await fetch('/dashboard/stats')
+            const res = await fetch('/dashboard/stats', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
             if (res.ok) {
                 const json = await res.json()
                 setData(json)
+            } else if (res.status === 401) {
+                localStorage.removeItem('token')
+                navigate('/login')
             }
         } catch (e) {
             console.error(e)
         } finally {
             setLoading(false)
+        }
+    }
+
+    const handleDelete = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this service?')) return
+
+        const token = localStorage.getItem('token')
+        try {
+            const res = await fetch(`/services/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+
+            if (res.ok) {
+                fetchData() // Refresh list
+            } else {
+                alert('Failed to delete service')
+            }
+        } catch (e) {
+            console.error(e)
+            alert('Error deleting service')
         }
     }
 
@@ -99,8 +136,18 @@ export function Dashboard() {
                             </div>
                         </div>
 
-                        <div className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(service.last_status)}`}>
-                            {service.last_status.toUpperCase()}
+                        <div className="flex items-center space-x-3">
+                            <div className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(service.last_status)}`}>
+                                {service.last_status.toUpperCase()}
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                                onClick={() => handleDelete(service.id)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
                         </div>
                     </Card>
                 ))}

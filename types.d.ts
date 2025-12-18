@@ -19,9 +19,11 @@ declare module 'motia' {
     'FetchHealth': EventHandler<{ serviceId: string; baseUrl: string; healthPath: string }, { topic: 'analyze-health'; data: { serviceId: string; statusCode: number; latency: number; errorType: string | unknown; healthPayload: unknown | unknown } }>
     'AnalyzeHealth': EventHandler<{ serviceId: string; statusCode: number; latency: number; errorType: string | unknown; healthPayload: unknown | unknown }, { topic: 'store-incident'; data: { serviceId: string; status: 'healthy' | 'degraded' | 'unhealthy'; reason: string; errorCode: string | unknown; latency: number } }>
     'HealthCheckMonitor': CronHandler<{ topic: 'trigger-check'; data: { serviceId: string; baseUrl: string; healthPath: string } }>
-    'RegisterService': ApiRouteHandler<{ base_url: string; health_path: string; alert_email: string; check_interval: number }, ApiResponse<201, { id: string; message: string }> | ApiResponse<400, { error: string }>, never>
-    'GetDashboardStats': ApiRouteHandler<Record<string, unknown>, ApiResponse<200, { services: Array<unknown>; incidents: Array<unknown> }>, never>
-    'AuthLogin': ApiRouteHandler<{ email: string; password: string }, ApiResponse<200, { token: string; user: { email: string } }> | ApiResponse<401, { error: string }>, never>
+    'AuthSignup': ApiRouteHandler<{ email: string; password: string; name?: string }, ApiResponse<201, { token: string; user: { id: string; email: string; name: string | unknown } }> | ApiResponse<400, { error: string }>, never>
+    'RegisterService': ApiRouteHandler<{ base_url: string; health_path: string; alert_email: string; check_interval: number }, ApiResponse<201, { id: string; message: string }> | ApiResponse<400, { error: string }> | ApiResponse<401, { error: string }>, never>
+    'DeleteService': ApiRouteHandler<Record<string, unknown>, ApiResponse<200, { message: string }> | ApiResponse<401, { error: string }> | ApiResponse<404, { error: string }>, never>
+    'GetDashboardStats': ApiRouteHandler<Record<string, unknown>, ApiResponse<200, { services: Array<unknown>; incidents: Array<unknown> }> | ApiResponse<401, { error: string }>, never>
+    'AuthLogin': ApiRouteHandler<{ email: string; password: string }, ApiResponse<200, { token: string; user: { id: string; email: string; name: string | unknown } }> | ApiResponse<401, { error: string }>, never>
   }
     
 }

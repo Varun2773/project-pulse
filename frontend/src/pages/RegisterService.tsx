@@ -15,9 +15,13 @@ export function RegisterService() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
+            const token = localStorage.getItem('token')
             const res = await fetch('/services', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify(formData)
             })
 
