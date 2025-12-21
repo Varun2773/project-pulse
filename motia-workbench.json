@@ -3,8 +3,8 @@
     "id": "hello-world-flow",
     "config": {
       "src/hello/process-greeting.step.ts": {
-        "x": 497,
-        "y": -46
+        "x": 590,
+        "y": 25
       },
       "src/hello/hello-api.step.ts": {
         "x": 0,
@@ -17,12 +17,12 @@
     "id": "ServiceHealthCheckWorkflow",
     "config": {
       "src/events/store-incident.step.ts": {
-        "x": 1152,
-        "y": 33
+        "x": 1157,
+        "y": -49
       },
       "src/events/notify.step.ts": {
-        "x": 1854,
-        "y": 288
+        "x": 1780,
+        "y": -15
       },
       "src/events/fetch-health.step.ts": {
         "x": 312,

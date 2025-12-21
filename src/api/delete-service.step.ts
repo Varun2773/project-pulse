@@ -16,12 +16,15 @@ export const config: ApiRouteConfig = {
     responseSchema: {
         200: z.object({ message: z.string() }),
         401: z.object({ error: z.string() }),
-        404: z.object({ error: z.string() })
+        404: z.object({ error: z.string() }),
+        400: z.object({ error: z.string() })
     }
 }
 
 export const handler: Handlers['DeleteService'] = async (req, { logger }) => {
-    const { id } = req.params as { id: string }
+    const { id } = (req as any).pathParams || {}
+
+    if (!id) return { status: 400, body: { error: 'Missing service ID' } }
     const authHeader = req.headers['authorization']
 
 

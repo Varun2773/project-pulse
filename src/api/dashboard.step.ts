@@ -66,6 +66,7 @@ export const handler: Handlers['GetDashboardStats'] = async (req) => {
         body: {
             services,
             incidents,
+            userId
         },
     }
 }

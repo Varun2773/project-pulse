@@ -52,7 +52,19 @@ export const handler: Handlers['FetchHealth'] = async (input, { emit, logger }) 
         })
     } catch (error: any) {
         const latency = Date.now() - startTime
-        const errorType = error.name === 'AbortError' ? 'ETIMEDOUT' : 'NETWORK_ERROR'
+
+        let errorType = 'NETWORK_ERROR'
+        if (error.name === 'AbortError') {
+            errorType = 'ETIMEDOUT'
+        } else if (error.cause && error.cause.code) {
+            // Node.js fetch often wraps errors in cause
+            errorType = error.cause.code
+        } else if (error.code) {
+            errorType = error.code
+        } else if (error.message && error.message.includes('fetch failed')) {
+            // Fallback for generic fetch errors, try to extract more info
+            errorType = 'FETCH_FAILED'
+        }
 
         await (emit as any)({
             topic: 'analyze-health',
@@ -60,7 +72,7 @@ export const handler: Handlers['FetchHealth'] = async (input, { emit, logger }) 
                 serviceId,
                 statusCode: 0,
                 latency,
-                errorType: errorType,
+                errorType,
                 healthPayload: null
             }
         })

@@ -20,6 +20,7 @@ export const config: EventConfig = {
     emits: ['notify-alert'],
     input: inputSchema,
     flows: ['ServiceHealthCheckWorkflow'],
+    // Force schema rebuild
 }
 
 export const handler: Handlers['StoreIncident'] = async (input, { emit, logger }) => {
@@ -75,6 +76,32 @@ export const handler: Handlers['StoreIncident'] = async (input, { emit, logger }
                     where: { id: serviceId },
                     data: { last_alert_sent_at: now }
                 })
+            }
+
+            // Send to Webhook if configured (Hackathon Feature)
+            if ((service as any).webhookUrl) {
+                try {
+                    await fetch((service as any).webhookUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            username: "Project Pulse",
+                            avatar_url: "https://i.imgur.com/4M34hi2.png",
+                            embeds: [{
+                                title: `🚨 Service ${status.toUpperCase()}: ${serviceId}`,
+                                description: reason,
+                                color: status === 'unhealthy' ? 15158332 : 16776960,
+                                fields: [
+                                    { name: "Latency", value: `${latency}ms`, inline: true },
+                                    { name: "Time", value: new Date().toISOString(), inline: true }
+                                ]
+                            }]
+                        })
+                    })
+                    logger.info(`Webhook alert sent for service ${serviceId}`)
+                } catch (e) {
+                    logger.error(`Failed to send webhook for service ${serviceId}`, { error: String(e) })
+                }
             }
 
             await (emit as any)({

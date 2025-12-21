@@ -66,6 +66,32 @@ export function Dashboard() {
         }
     }
 
+    const handleAnalyze = async (incident: any) => {
+        if (incident.suggestion) return // Already analyzed
+
+        // Optimistic UI could go here, but let's just show loading state if we had one.
+        // For now, simple alert or better, we set a loading state locally.
+
+        const token = localStorage.getItem('token')
+        try {
+            const res = await fetch(`/incidents/${incident.id}/analyze`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+
+            if (res.ok) {
+                fetchData() // Refresh to show the suggestion
+            } else {
+                alert('Failed to analyze incident')
+            }
+        } catch (e) {
+            console.error(e)
+            alert('Error analyzing incident')
+        }
+    }
+
     useEffect(() => {
         fetchData()
         const interval = setInterval(fetchData, 10000) // Poll every 10s
@@ -97,7 +123,20 @@ export function Dashboard() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold tracking-tight">System Status</h1>
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight">System Status</h1>
+                    <div className="text-sm text-gray-500 mt-1 flex items-center space-x-2">
+                        <span>Your Public Status Page:</span>
+                        <a
+                            href={`/status/${(data as any).userId || ''}`} // Link to frontend route
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-600 hover:underline flex items-center"
+                        >
+                            View Live <span className="ml-1 text-xs">↗</span>
+                        </a>
+                    </div>
+                </div>
                 <Link to="/register-service">
                     <Button>+ Register Service</Button>
                 </Link>
@@ -155,6 +194,52 @@ export function Dashboard() {
                 {data.services.length === 0 && (
                     <div className="text-center py-12 text-gray-500 bg-white rounded-lg border border-dashed border-gray-300">
                         No services registered yet.
+                    </div>
+                )}
+            </div>
+
+            <h2 className="text-lg font-semibold mt-8 mb-4">Recent Incidents</h2>
+            <div className="space-y-4">
+                {data.incidents.map((incident: any) => (
+                    <Card key={incident.id} className="p-4">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <div className="flex items-center space-x-2">
+                                    <span className="font-medium text-gray-900">{incident.service.base_url}</span>
+                                    <span className={`text-xs px-2 py-0.5 rounded-full border ${getStatusColor(incident.status)}`}>
+                                        {incident.status.toUpperCase()}
+                                    </span>
+                                </div>
+                                <p className="text-sm text-gray-600 mt-1">{incident.reason}</p>
+                                <p className="text-xs text-gray-400 mt-1">
+                                    {new Date(incident.timestamp).toLocaleString()}
+                                </p>
+                            </div>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex items-center space-x-2 text-purple-600 border-purple-200 hover:bg-purple-50"
+                                onClick={() => handleAnalyze(incident)}
+                            >
+                                <span>✨ Analyze</span>
+                            </Button>
+                        </div>
+                        {incident.suggestion && (
+                            <div className="mt-4 p-3 bg-purple-50 rounded-md border border-purple-100 text-sm">
+                                <h4 className="font-semibold text-purple-900 mb-1 flex items-center">
+                                    ✨ Pulse AI Suggestion
+                                </h4>
+                                <div className="text-purple-800 whitespace-pre-wrap">
+                                    {incident.suggestion}
+                                </div>
+                            </div>
+                        )}
+                    </Card>
+                ))}
+
+                {data.incidents.length === 0 && (
+                    <div className="text-center py-8 text-gray-500 bg-white rounded-lg border border-dashed border-gray-300">
+                        No recent incidents.
                     </div>
                 )}
             </div>

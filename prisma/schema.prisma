@@ -16,6 +16,7 @@ model Service {
   last_status   String   @default("unknown") // healthy, degraded, unhealthy
   last_checked_at DateTime?
   last_alert_sent_at DateTime?
+  webhookUrl    String?
   created_at    DateTime @default(now())
   incidents     Incident[]
   user          User     @relation(fields: [userId], references: [id])
@@ -29,6 +30,7 @@ model Incident {
   status      String   // healthy, degraded, unhealthy
   reason      String
   error_code  String?
+  suggestion  String?
   latency     Int?
   timestamp   DateTime @default(now())
 }
